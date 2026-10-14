@@ -13,15 +13,19 @@
 # if args.verbose:
 #     print('Verbose mode is enabled.')
 import argparse
+from datetime import datetime, timezone, date
 
 parser = argparse.ArgumentParser(description='Track your expenses efficiently.')
 subparser = parser.add_subparsers(dest='command', required=True)
 # Subparser for the 'add' expense command
 parser_add = subparser.add_parser('add', help='Add a new expense.')
-parser_add.add_argument('-a','--amount', type=float, help='The amount of the expense.')
-parser_add.add_argument('-d','--description', type=str, help='The description of the expense.')
+parser_add.add_argument('-a','--amount',required=True, type=float, help='The amount of the expense.')
+parser_add.add_argument('-d','--description', required=True,type=str, help='The description of the expense.')
 # Subparser for the update expense command
-# 
+parser_update = subparser.add_parser('update', help='Update a previous expense')
+parser_update.add_argument('-u', '--update', type=float, help='Which expense to update')
+parser_update.add_argument('-n', '--new', type=float, help='The new amount')
+
 # 
 # 
 
@@ -29,14 +33,27 @@ parser_add.add_argument('-d','--description', type=str, help='The description of
 def add_expense(args):
     amount = args.amount
     description = args.description
-    expense_list = []
-    expense_list.append({'description': description,'amount': amount})
+    expense_list = {}
+    id_pair = 1
+    now = datetime.today()
+    expense_list.update({'description': description,'amount': amount, 'Date': now.isoformat()})
     if amount is None or description is None:
         print("Error: Amount and description are required.")
         return
-    print(f"Added expense: {description} -> ${amount}")
-# parser_add.set_defaults(func=add_expense)
+    print(f"Added expense: {description} -> ${amount} ({now.isoformat()})")
+    id_pair += 1
+    return expense_list
+
 if __name__ == "__main__":
     args = parser.parse_args()
     if args.command == 'add':
+        expenselist = add_expense(args)
         add_expense(args)
+        print(args)
+        
+
+
+#Function to update expense
+def update_expense(args):
+    update_key = args.update
+    update_pair = args.new
